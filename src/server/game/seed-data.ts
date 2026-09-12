@@ -6,7 +6,7 @@ export const INITIAL_SHOP_ITEMS = [
     category: "TITLE",
     price: 45,
     levelRequirement: 1,
-    effectKey: "title-the-focused",
+    effectKey: "The Focused",
   },
   {
     slug: "avatar-scholar",
