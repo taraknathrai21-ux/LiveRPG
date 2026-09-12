@@ -258,6 +258,9 @@ export async function purchaseItemTransaction(params: {
       });
 
       return responsePayload;
+    }, {
+      maxWait: 10000,
+      timeout: 20000,
     });
 
     return result;

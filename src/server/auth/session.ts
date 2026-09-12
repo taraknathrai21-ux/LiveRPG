@@ -135,6 +135,9 @@ async function syncClerkUser(clerkUser: NonNullable<Awaited<ReturnType<typeof ge
         ...newUser,
         character: newCharacter,
       };
+    }, {
+      maxWait: 10000,
+      timeout: 20000,
     });
   }
 
