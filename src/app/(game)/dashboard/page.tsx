@@ -297,6 +297,49 @@ export default function DashboardPage() {
     },
   });
 
+  const unequipItemMutation = useMutation({
+    mutationFn: async ({ itemId }: { itemId: string }) => {
+      const res = await fetch("/api/inventory/unequip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error?.message);
+      return json;
+    },
+    onSuccess: (data, variables) => {
+      if (data?.data?.slot && data?.data?.equippedValue !== undefined) {
+        queryClient.setQueryData(["me"], (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            character: {
+              ...old.character,
+              [data.data.slot]: data.data.equippedValue,
+            },
+          };
+        });
+
+        // Optimistically update shop cache for unequipped item
+        queryClient.setQueryData(["shop"], (old: any) => {
+          if (!Array.isArray(old)) return old;
+          return old.map((item: any) => {
+            if (item.id === variables.itemId) {
+              return { ...item, isEquipped: false };
+            }
+            return item;
+          });
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      queryClient.invalidateQueries({ queryKey: ["shop"] });
+    },
+    onError: (err: any) => {
+      alert(err.message);
+    },
+  });
+
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
       const res = await fetch("/api/me", {
@@ -581,6 +624,9 @@ export default function DashboardPage() {
             }}
             onEquip={async (itemId) => {
               await equipItemMutation.mutateAsync({ itemId });
+            }}
+            onUnequip={async (itemId) => {
+              await unequipItemMutation.mutateAsync({ itemId });
             }}
           />
         )}

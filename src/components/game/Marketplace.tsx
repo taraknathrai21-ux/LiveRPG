@@ -26,9 +26,10 @@ interface MarketplaceProps {
   userLevel: number;
   onPurchase: (itemId: string) => Promise<void>;
   onEquip: (itemId: string, effectKey: string, category: string) => Promise<void>;
+  onUnequip?: (itemId: string, effectKey: string, category: string) => Promise<void>;
 }
 
-export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }: MarketplaceProps) {
+export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip, onUnequip }: MarketplaceProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [processingId, setProcessingId] = useState<string | null>(null);
   const { setTheme } = useTheme();
@@ -78,6 +79,26 @@ export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }:
       // If theme, immediately apply CSS variable attribute to document root
       if (item.category === "THEME") {
         setTheme(item.effectKey);
+      }
+    } catch {
+      // Handled in parent
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleUnequip = async (item: ShopItem) => {
+    if (processingId) return;
+    setProcessingId(item.id);
+
+    try {
+      if (onUnequip) {
+        await onUnequip(item.id, item.effectKey, item.category);
+      }
+
+      // If theme was unequipped, reset theme to default
+      if (item.category === "THEME") {
+        setTheme("theme-midnight");
       }
     } catch {
       // Handled in parent
@@ -149,10 +170,18 @@ export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }:
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-secondary border border-border text-foreground-muted flex items-center gap-1">
-                    {categoryIcons[item.category]}
-                    {categoryLabels[item.category] || item.category}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-secondary border border-border text-foreground-muted flex items-center gap-1">
+                      {categoryIcons[item.category]}
+                      {categoryLabels[item.category] || item.category}
+                    </span>
+
+                    {item.isEquipped && (
+                      <span className="text-[10px] font-bold text-gold px-2 py-0.5 rounded bg-gold/10 border border-gold/40 flex items-center gap-1">
+                        <Check className="w-3 h-3" aria-hidden="true" /> Equipped
+                      </span>
+                    )}
+                  </div>
 
                   {item.levelRequirement > 1 && (
                     <span
@@ -180,9 +209,14 @@ export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }:
                 </div>
 
                 {item.isEquipped ? (
-                  <span className="text-xs font-bold text-gold px-3 py-1.5 rounded-lg bg-gold/10 border border-gold/40 flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" aria-hidden="true" /> Equipped
-                  </span>
+                  <button
+                    onClick={() => handleUnequip(item)}
+                    disabled={Boolean(processingId)}
+                    aria-label={`Unequip ${item.name}`}
+                    className="text-xs font-bold px-3.5 py-1.5 rounded-lg bg-secondary border border-border hover:border-red-500/60 hover:text-red-400 text-foreground-muted transition-all"
+                  >
+                    {processingId === item.id ? "Processing..." : "Unequip"}
+                  </button>
                 ) : item.isOwned ? (
                   <button
                     onClick={() => handleEquip(item)}
@@ -190,7 +224,7 @@ export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }:
                     aria-label={`Equip ${item.name}`}
                     className="text-xs font-bold px-3.5 py-1.5 rounded-lg bg-secondary border border-border hover:border-gold text-foreground transition-all"
                   >
-                    Equip Item
+                    {processingId === item.id ? "Processing..." : "Equip Item"}
                   </button>
                 ) : isLockedByLevel ? (
                   <span className="text-xs font-medium text-foreground-muted px-3 py-1.5 rounded-lg bg-secondary/50 border border-border flex items-center gap-1">

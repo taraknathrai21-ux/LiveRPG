@@ -347,3 +347,71 @@ export async function equipItem(params: {
     },
   };
 }
+
+export async function unequipItem(params: {
+  userId: string;
+  itemId: string;
+}) {
+  const { userId, itemId } = params;
+
+  const inventoryItem = await prisma.inventoryItem.findUnique({
+    where: {
+      userId_itemId: {
+        userId,
+        itemId,
+      },
+    },
+    include: { shopItem: true },
+  });
+
+  if (!inventoryItem) {
+    return {
+      ok: false,
+      error: {
+        code: "ITEM_NOT_OWNED",
+        message: "You do not own this item.",
+        status: 403,
+      },
+    };
+  }
+
+  const { category, effectKey } = inventoryItem.shopItem;
+  const validation = validateEquipment(category, effectKey);
+
+  if (!validation.canEquip || !validation.slot) {
+    return {
+      ok: false,
+      error: {
+        code: "INVALID_EQUIPMENT_SLOT",
+        message: validation.errorMessage || "Cannot unequip this item.",
+        status: 400,
+      },
+    };
+  }
+
+  const defaultValues: Record<string, string> = {
+    equippedTheme: "theme-midnight",
+    equippedAvatar: "avatar-warrior",
+    equippedTitle: "Novice Adventurer",
+    equippedFrame: "frame-apprentice",
+  };
+
+  const defaultValue = defaultValues[validation.slot] || "theme-midnight";
+
+  const updatedCharacter = await prisma.character.update({
+    where: { userId },
+    data: {
+      [validation.slot]: defaultValue,
+      stateVersion: { increment: 1 },
+    },
+  });
+
+  return {
+    ok: true,
+    data: {
+      slot: validation.slot,
+      equippedValue: defaultValue,
+      character: updatedCharacter,
+    },
+  };
+}
