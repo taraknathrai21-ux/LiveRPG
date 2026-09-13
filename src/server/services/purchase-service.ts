@@ -316,7 +316,7 @@ export async function equipItem(params: {
     };
   }
 
-  const { category, effectKey } = inventoryItem.shopItem;
+  const { category, effectKey, name } = inventoryItem.shopItem;
   const validation = validateEquipment(category, effectKey);
 
   if (!validation.canEquip || !validation.slot) {
@@ -330,10 +330,12 @@ export async function equipItem(params: {
     };
   }
 
+  const equippedValue = validation.slot === "equippedTitle" ? name : effectKey;
+
   const updatedCharacter = await prisma.character.update({
     where: { userId },
     data: {
-      [validation.slot]: effectKey,
+      [validation.slot]: equippedValue,
       stateVersion: { increment: 1 },
     },
   });
@@ -342,7 +344,7 @@ export async function equipItem(params: {
     ok: true,
     data: {
       slot: validation.slot,
-      equippedValue: effectKey,
+      equippedValue,
       character: updatedCharacter,
     },
   };
