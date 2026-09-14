@@ -19,7 +19,13 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
-    "db:setup": "prisma db push && tsx prisma/seed.ts"
+    "db:setup": "prisma db push && tsx prisma/seed.ts",
+    "cap:sync": "cap sync",
+    "cap:build": "next build && cap sync",
+    "cap:open:android": "cap open android",
+    "cap:run:android": "cap run android",
+    "cap:apk:debug": "npm run cap:sync && cd android && gradlew.bat assembleDebug && cd ..",
+    "cap:apk:release": "npm run cap:sync && cd android && gradlew.bat assembleRelease && cd .."
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -27,6 +33,14 @@
   "dependencies": {
     "@ai-sdk/google": "^4.0.69",
     "@ai-sdk/react": "^4.0.102",
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/keyboard": "^8.0.5",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3",
     "@clerk/nextjs": "^7.9.2",
     "@prisma/client": "^6.4.1",
     "@tanstack/react-query": "^5.66.9",

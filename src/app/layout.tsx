@@ -1,7 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ClientProviders } from "@/components/providers/ClientProviders";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "Arcane Codex — Life RPG | Turn Your Real-Life Progress into a Legend",
@@ -56,7 +62,6 @@ export default function RootLayout({
           />
         </head>
         <body className="antialiased min-h-screen bg-page text-foreground selection:bg-gold/30 selection:text-gold">
-          {/* Skip to Content for Keyboard Accessibility */}
           <a
             href="#main-content"
             className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-gold focus:text-page focus:font-bold focus:rounded-md shadow-lg"

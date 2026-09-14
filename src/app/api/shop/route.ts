@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
-import { INITIAL_SHOP_ITEMS } from "@/server/game/seed-data";
+import { INITIAL_SHOP_ITEMS, INITIAL_ACHIEVEMENTS, INITIAL_TEMPLATES } from "@/server/game/seed-data";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -17,8 +17,8 @@ export async function GET() {
     orderBy: [{ levelRequirement: "asc" }, { price: "asc" }],
   });
 
-  // Auto-seed shop items if empty
-  if (dbItems.length === 0) {
+  // Auto-seed or synchronize database if missing items
+  if (dbItems.length < INITIAL_SHOP_ITEMS.length) {
     for (const item of INITIAL_SHOP_ITEMS) {
       await prisma.shopItem.upsert({
         where: { slug: item.slug },
@@ -26,6 +26,23 @@ export async function GET() {
         create: item,
       });
     }
+
+    for (const achievement of INITIAL_ACHIEVEMENTS) {
+      await prisma.achievement.upsert({
+        where: { slug: achievement.slug },
+        update: achievement,
+        create: achievement,
+      });
+    }
+
+    for (const template of INITIAL_TEMPLATES) {
+      await prisma.questTemplate.upsert({
+        where: { slug: template.slug },
+        update: template,
+        create: template,
+      });
+    }
+
     dbItems = await prisma.shopItem.findMany({
       where: { active: true },
       orderBy: [{ levelRequirement: "asc" }, { price: "asc" }],

@@ -2,9 +2,18 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 export function AuthRefreshGuard() {
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
+
+  useEffect(() => {
+    // If user is already authenticated, redirect away from login/register to main home page
+    if (isLoaded && isSignedIn) {
+      router.replace("/");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   useEffect(() => {
     let isReload = false;

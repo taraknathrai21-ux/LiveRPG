@@ -132,6 +132,9 @@ export async function POST(req: NextRequest) {
         activityTimezone: newUser.activityTimezone,
         character: newCharacter,
       };
+    }, {
+      maxWait: 10000,
+      timeout: 20000,
     });
 
     // Create session cookie
