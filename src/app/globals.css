@@ -23,7 +23,14 @@
   --color-success: #34D399;
   --color-text-primary: #EDE9F5;
   --color-text-muted: #9B93B0;
+
+  /* Mobile Safe Area Insets */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
 }
+
 
 [data-theme="theme-crimson"] {
   /* Crimson Covenant Theme */

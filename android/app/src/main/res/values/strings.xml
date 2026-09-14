@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Arcane Codex</string>
+    <string name="title_activity_main">Arcane Codex</string>
+    <string name="package_name">com.arcanecodex.liferpg</string>
+    <string name="custom_url_scheme">com.arcanecodex.liferpg</string>
+</resources>

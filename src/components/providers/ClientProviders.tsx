@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { sound } from "@/lib/audio";
+import { CapacitorInit } from "./CapacitorInit";
 
 interface ThemeContextType {
   theme: string;
@@ -79,6 +80,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeContext.Provider value={{ theme, setTheme, soundEnabled, toggleSound }}>
+        <CapacitorInit />
         {children}
         {/* Polite ARIA live region for screen-reader announcements */}
         <div id="arcane-a11y-announcer" aria-live="polite" aria-atomic="true" className="sr-only" />
@@ -86,3 +88,4 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
     </QueryClientProvider>
   );
 }
+
